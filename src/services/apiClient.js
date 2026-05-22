@@ -2,8 +2,7 @@ import { getToken, getRefreshToken, setToken } from './tokenStorage';
 
 function getApiBaseUrl() {
   const origin = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
-  const prefix = process.env.NEXT_PUBLIC_API_PREFIX || '/api';
-  return `${origin}${prefix}`;
+  return origin;
 }
 
 let isRefreshing = false;
@@ -47,7 +46,7 @@ async function tryRefreshToken() {
 
 export async function api(path, { method = 'GET', body, auth = true } = {}) {
   const base = getApiBaseUrl();
-  const p = path.startsWith('/') ? path : `/${path}`;
+  const apiPath = path.startsWith('/') ? `/api${path}` : `/api/${path}`;
   const headers = { Accept: 'application/json', 'Content-Type': 'application/json' };
   
   if (auth) {
@@ -56,7 +55,7 @@ export async function api(path, { method = 'GET', body, auth = true } = {}) {
   }
 
   try {
-    let res = await fetch(`${base}${p}`, {
+    let res = await fetch(`${base}${apiPath}`, {
       method,
       headers,
       body: body != null ? JSON.stringify(body) : undefined,
@@ -66,7 +65,7 @@ export async function api(path, { method = 'GET', body, auth = true } = {}) {
       const newToken = await tryRefreshToken();
       if (newToken) {
         headers.Authorization = `Bearer ${newToken}`;
-        res = await fetch(`${base}${p}`, {
+        res = await fetch(`${base}${apiPath}`, {
           method,
           headers,
           body: body != null ? JSON.stringify(body) : undefined,
