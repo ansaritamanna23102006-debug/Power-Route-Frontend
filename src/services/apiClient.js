@@ -1,8 +1,9 @@
 import { getToken, getRefreshToken, setToken } from './tokenStorage';
 
 function getApiBaseUrl() {
-  const origin = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
-  return origin;
+  // Vercel will inject NEXT_PUBLIC_API_URL at build time.
+  // During local dev we fall back to the local dev server.
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 }
 
 let isRefreshing = false;
